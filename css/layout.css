@@ -1,0 +1,25 @@
+html,body{
+  height: 100%;
+}
+body{
+  position: relative;
+}
+footer,header{
+  line-height: 35px;
+  text-align: center;
+}
+footer{
+  border-top:1px solid #ccc;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  color:#999;
+}
+header{
+  font-size: 16px;
+  border-bottom:1px solid #ccc;
+}
+a{
+  text-decoration: none;
+  color:#555;
+}

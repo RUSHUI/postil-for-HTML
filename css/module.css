@@ -1,0 +1,31 @@
+.contentBox{
+  position: absolute;
+  top: 35px;
+  bottom: 35px;
+  overflow: hidden;
+}
+.reader-tools{
+  height: 30px;
+  font-size: 30px;
+  color: #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.reader-tools i {
+  width: 10%;
+  display: inline-block;
+    background: rgba(242, 242, 242, 0.25);
+  text-align: center;
+  cursor: pointer;
+}
+.reader-tools i:hover {
+  color:black;
+    background: rgba(242, 242, 242, 0.75);
+}
+.pleft,.ppleft{float: left;}
+.pright,.ppright{float: right;}
+
+.reader-box{
+  line-height: 30px;
+  text-indent: 2em;
+}
