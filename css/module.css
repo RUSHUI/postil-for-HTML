@@ -1,31 +1,51 @@
 .contentBox{
   position: absolute;
-  top: 35px;
+  top: 40px;
   bottom: 35px;
   overflow: hidden;
 }
 .reader-tools{
-  height: 30px;
+  height: 35px;
   font-size: 30px;
-  color: #ddd;
-    border-bottom: 1px solid #ddd;
+  color: #D0AE78;
+
+    border-bottom: 1px solid #CFB36D;
 }
 
 .reader-tools i {
+  height: 100%;
   width: 10%;
   display: inline-block;
-    background: rgba(242, 242, 242, 0.25);
   text-align: center;
   cursor: pointer;
 }
 .reader-tools i:hover {
-  color:black;
-    background: rgba(242, 242, 242, 0.75);
+  background: rgb(211, 166, 114);
+  color: white;
 }
 .pleft,.ppleft{float: left;}
 .pright,.ppright{float: right;}
 
 .reader-box{
-  line-height: 30px;
+  padding: 20px 50px;
+  line-height: 35px;
+  letter-spacing: 1px;
   text-indent: 2em;
+  font-family: 微软雅黑;
+  font-size: 16px;
+  color: #555;
 }
+/*.content{
+    letter-spacing: 1px;
+}
+.content:before{
+  content: "";
+  position: absolute;
+  background-image: url(../assets/images/point.png);
+  width: 15px;
+  height: 30px;
+  left: 85px;
+  top: 52px;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}*/

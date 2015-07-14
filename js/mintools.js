@@ -68,11 +68,11 @@ $.alert = function(msg, fn, position) {
 	setTimeout(function() {
 		$elm.find(".mask-msg-box").addClass("toCenter");
 	}, 50);
-
 	setTimeout(function() {
 		$elm.find(".mask-msg-box").removeClass("toCenter");
 		setTimeout(function() {
 			$elm.remove();
 		}, 500);
 	}, 1500);
+	return $elm;
 };

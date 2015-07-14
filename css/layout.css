@@ -2,24 +2,31 @@ html,body{
   height: 100%;
 }
 body{
+  background-image: url(../assets/images/singlebg.png);
   position: relative;
 }
 footer,header{
-  line-height: 35px;
+  line-height: 25px;
   text-align: center;
 }
 footer{
-  border-top:1px solid #ccc;
+  border-top:1px solid #CFB36D;
   position: absolute;
   bottom: 0;
   width: 100%;
-  color:#999;
+  background-image: url(../assets/images/singlebg.png);
+  color:#616161;
 }
 header{
-  font-size: 16px;
-  border-bottom:1px solid #ccc;
+  font-size: 22px;
+line-height: 45px;
+height: 40px;
+border-bottom: 1px solid #CFB36D;
 }
 a{
   text-decoration: none;
-  color:#555;
+  color:#EFEEDB;
+}
+.content{
+
 }
