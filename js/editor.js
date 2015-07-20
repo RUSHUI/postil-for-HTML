@@ -1,5 +1,9 @@
 $(function() {
-  var getSelectionObject = function() {
+  var editor = {};
+  editor.width = $(".reader-box .content").width();
+
+  // 获取选中文本
+  var gslt = function() {
     var _selection = window.getSelection ? window.getSelection() : (document.getSelection ?
       document.getSelection() : (document.selection ? document.selection : null));
     return _selection;
@@ -12,20 +16,51 @@ $(function() {
       },
       url: params.url,
       success: function(response) {
-        $(".reader-box .content").html(response);
-        !init && $.alert("sucess");
+        editor.text = response;
+        var rows = splitText(editor.text, editor.width);
+        $(".reader-box .content").html("<div>" + rows.join("</div><div>") + "</div>");
+        !init && $.alert("render sucess!");
       },
       failure: function() {
         $.alert("文章获取失败！！！").find(".mask-msg-box").css("color", "rgb(253, 135, 135)");
       }
     });
-  };
 
+  };
   //首次打开获取内容显示
   render({
     url: "./assets/common.txt",
     page: 0
   }, "init");
+
+  var splitText = function(str, len) {
+    var str = str,
+      w = len,
+      rows = [],
+      str_maxLen = 0,
+      str_cut = "",
+      idx = 0;
+    for (var i = 0, _len = str.length; i < _len; i++) {
+      var _a = str.charAt(i);
+      str_maxLen++;
+      if (escape(_a).length > 4) {
+        //中文字符的长度经编码之后大于4
+        str_maxLen++;
+      }
+      str_cut = str_cut.concat(_a);
+      if (str_maxLen % w === 0) {
+        rows[idx++] = str_cut;
+        str_cut = "";
+      }
+      //剩余部分长度不足width长度时
+      if (str_maxLen % w !== 0 && i === _len - 1) {
+        rows[idx] = str_cut;
+      }
+    }
+    return rows;
+  };
+
+
 
   //阅读器顶部工具功能实现（暂未实现）
   $(".contentBox .reader-tools").find("i").each(function() {
@@ -37,6 +72,9 @@ $(function() {
     });
   });
 
+  $(".contentBox .content").bind("keyup keydown", function() {
+    return false;
+  });
   //阅读器内容选中处理
   $(".contentBox .reader-box").bind("mouseup", function() {
     var _select;
@@ -71,6 +109,7 @@ function mouseCoords(ev) {
     y: ev.clientY + document.body.scrollTop - document.body.clientTop
   };
 }
+
 $(".content").get(0).onmousemove = mouseMove;
 //
 (function($, win, doc, emt) {
