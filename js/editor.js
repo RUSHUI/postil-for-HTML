@@ -2,12 +2,34 @@ $(function() {
   var editor = {};
   editor.width = $(".reader-box .content").width();
 
+  var rsMouse = {};
+
+
+
   // 获取选中文本
-  var gslt = function() {
+  var getSelectionObject = function() {
     var _selection = window.getSelection ? window.getSelection() : (document.getSelection ?
       document.getSelection() : (document.selection ? document.selection : null));
     return _selection;
   };
+
+  //获取用户选中文本对象
+  getCurRange = function() {
+    var sel = null,
+      range = null;
+    if (window.getSelection) {
+      sel = window.getSelection();
+      console.log("选中对象个数:%o", sel.rangeCount);
+      if (sel.getRangeAt && sel.rangeCount) {
+        range = sel.getRangeAt(0);
+      }
+    } else if (document.selection) {
+      range = document.selection.createRange();
+    }
+    return range;
+  }
+
+  $.getSelectionObject = getCurRange;
   //获取一个文章内容api
   var render = function(params, init) {
     $.ajax({
@@ -16,9 +38,7 @@ $(function() {
       },
       url: params.url,
       success: function(response) {
-        editor.text = response;
-        var rows = splitText(editor.text, editor.width);
-        $(".reader-box .content").html("<div>" + rows.join("</div><div>") + "</div>");
+        $(".reader-box .content").html(response);
         !init && $.alert("render sucess!");
       },
       failure: function() {
@@ -33,35 +53,6 @@ $(function() {
     page: 0
   }, "init");
 
-  var splitText = function(str, len) {
-    var str = str,
-      w = len,
-      rows = [],
-      str_maxLen = 0,
-      str_cut = "",
-      idx = 0;
-    for (var i = 0, _len = str.length; i < _len; i++) {
-      var _a = str.charAt(i);
-      str_maxLen++;
-      if (escape(_a).length > 4) {
-        //中文字符的长度经编码之后大于4
-        str_maxLen++;
-      }
-      str_cut = str_cut.concat(_a);
-      if (str_maxLen % w === 0) {
-        rows[idx++] = str_cut;
-        str_cut = "";
-      }
-      //剩余部分长度不足width长度时
-      if (str_maxLen % w !== 0 && i === _len - 1) {
-        rows[idx] = str_cut;
-      }
-    }
-    return rows;
-  };
-
-
-
   //阅读器顶部工具功能实现（暂未实现）
   $(".contentBox .reader-tools").find("i").each(function() {
     $(this).click(function(e) {
@@ -72,20 +63,34 @@ $(function() {
     });
   });
 
-  $(".contentBox .content").bind("keyup keydown", function() {
+  $(".contentBox .content").bind("keyup keydown", function(e) {
+    console.log('内容区键盘key事件被阻止');
+    e.stopPropagation();
     return false;
   });
   //阅读器内容选中处理
-  $(".contentBox .reader-box").bind("mouseup", function() {
-    var _select;
-    if (null !== (_select = getSelectionObject())) {
-      if (_select.anchorOffset !== _select.focusOffset) {
+  $(".contentBox .artcontent").bind("mousedown", function(e) {
+    console.log("鼠标按下事件被捕获，然而什么都没干");
+  });
+  $(".contentBox .artcontent").bind("mouseup", function(e) {
+    console.log("鼠标松开事件被捕获");
+    rsSelectObject(this, e);
+  });
 
+  var rsSelectObject = function(elm, e) {
+    var _select, _content = elm.innerHTML;
+    if (null !== (_select = $.getSelectionObject())) {
+      if (_select.endOffset !== _select.startOffset) {
+        console.log("被选文本%o的起始位置(起始偏移):%o,结束位置:%o,结束尾偏移:%o", _select.toString(), _select.startOffset,
+          _select.endOffset, _content.length - _select.endOffset);
+        window.event
+      } else {
+        console.log("您将鼠标插入在当前文本的%o文字之后", _select.startOffset);
       }
     } else {
       $.alert("选择器获取失败！！！").find(".mask-msg-box").css("color", "rgb(253, 135, 135)");
     }
-  });
+  };
 });
 
 function mouseMove(ev) {

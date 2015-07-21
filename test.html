@@ -1,0 +1,36 @@
+
+<html>
+
+<head>
+<script>
+function getSelectedText() {
+    if (window.getSelection) {
+        // This technique is the most likely to be standardized.
+        // getSelection() returns a Selection object, which we do not document.
+        return window.getSelection().toString();
+    }
+    else if (document.getSelection) {
+        // This is an older, simpler technique that returns a string
+        return document.getSelection();
+    }
+    else if (document.selection) {
+        // This is the IE-specific technique.
+        // We do not document the IE selection property or TextRange objects.
+        return document.selection.createRange().text;
+    }
+}
+</script>
+
+<title></title>
+
+</head>
+
+<body>
+<input type="button" value="select" onclick="alert(getSelectedText())">
+<a href="javascript: var q; q=getSelectedText();void window.open('http://en.wikipedia.org/wiki/'+q);">lock up</a>
+
+<p>Civilization, I apprehend, is nearly synonymous with order. However much we may differ touching such matters as the distribution of property, the domestic relations, the law of inheritance and the like, most of us, I should suppose, would agree that without order civilization, as we understand it, cannot exist. Now, although the optimist contends that, since man cannot foresee the future, worry about the future is futile, and that everything, in the best possible of worlds, is inevitably for the best, I think it clear that within recent years an uneasy suspicion has come into being that the principle of authority has been </p>
+
+</body>
+
+</html>
