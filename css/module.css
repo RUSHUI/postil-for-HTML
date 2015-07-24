@@ -1,16 +1,16 @@
 .contentBox{
   position: absolute;
   top: 40px;
-  bottom: 35px;
+  bottom: 50px;
   left: 0;
   overflow: hidden;
   right: 0;
 }
 .reader-tools{
   height: 35px;
-  font-size: 30px;
-  color: #D0AE78;
-  border-bottom: 1px solid #CFB36D;
+font-size: 30px;
+color: rgba(125, 119, 124, 0.31);
+border-bottom: 1px solid #CFB36D;
 }
 
 .reader-tools i {
@@ -26,20 +26,34 @@
 }
 .pleft,.ppleft{float: left;}
 .pright,.ppright{float: right;}
-.wrapper{
-  width: 90%;
-  height: 500px;
-  overflow: auto;
-  margin: 20px auto 0;
-}
+
 .reader-box{
   font-family: 微软雅黑;
-  font-size: 16px;
-  color: #555;
+font-size: 16px;
+color: #555;
+width: 90%;
+margin: 15px auto 5px;
+box-sizing: content-box;
+overflow: hidden;
+position: absolute;
+top: 35px;
+left: 0;
+right: 0;
+bottom: 0;
+}
+.wrapper {
+    width: 100%;
+    padding-right: 20px;
+    height: 100%;
+    position: absolute;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-.content{
-  outline: 0;
+.content {
+    outline: 0;
+    position: relative;
+    overflow: hidden;
 }
 /*
 .content:before{
