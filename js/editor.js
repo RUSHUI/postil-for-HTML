@@ -1,7 +1,19 @@
 $(function() {
   var editor = {};
-  editor.width = $(".reader-box .content").width();
+  var elm = $(".editor"); //array
   var rsMouse = {};
+  editor.posBox = [];
+  elm.forEach(function(idx) {
+    var ths = idx.getBoundingClientRect();
+    editor.posBox.push({
+      left: ths.left,
+      right: ths.right,
+      top: ths.top,
+      bottom: ths.bottom,
+      width: ths.width,
+      height: ths.height
+    });
+  });
 
   // 初始化文章
   $.ajax({
@@ -81,6 +93,9 @@ $(function() {
     console.log("鼠标松开事件被捕获");
     rsSelectObject(this, e);
   });
+  $(".contentBox .artcontent").bind("blur", function(e) {
+    restoreSelection();
+  });
   var insertSign = function(range) {
     var sign = range.createContextualFragment("<sign></sign>");
   };
@@ -90,14 +105,9 @@ $(function() {
       if (!_select.collapsed) { //起始和结束是否重合
         console.log("被选文本%o的起始位置(起始偏移):%o,结束位置:%o,结束尾偏移:%o", _select.toString(), _select.startOffset,
           _select.endOffset, _content.length - _select.endOffset);
+        saveSelection();
         insertSign(_select);
-        // var clientRects = _select.getClientRects();
-        // console.log(clientRects[0].top, clientRects[0].right, clientRects[0].bottom,
-        //   clientRects[0].left, clientRects[0].width, clientRects[0].height);
-        // ljtips(elm).show({
-        //   clientRects: clientRects[0],
-        //   content: "小工具栏",
-        // }, elm);
+        console.log(rsMouse.x, rsMouse.y);
       } else {
         console.log("您将鼠标插入在当前文本的%o文字之后", _select.startOffset);
       }
@@ -105,12 +115,55 @@ $(function() {
       $.alert("选择器获取失败！！！").find(".mask-msg-box").css("color", "rgb(253, 135, 135)");
     }
   };
+  //获取当前的选中范围
+  var getCurrentRange = function() {
+      //获取浏览器的选择区域（注意，低版本IE不支持，有另外的兼容性方案）
+      //如果此时鼠标选中一段文字，则将获取选中的内容；如果此时鼠标未选中任何内容，则返回空内容（不是null）
+      var sel = window.getSelection();
+
+      if (sel.getRangeAt && sel.rangeCount) {
+        //检查这段选中区域选中的范围（range），并返回第一个range
+        //浏览器支持一个selection中多个range，但是富文本编辑器是通过鼠标选中得到range，此时只有一个，取第一个即可
+        return sel.getRangeAt(0);
+      }
+    },
+
+    //将当前选中的范围，保存到一个变量中（供 restoreSelection 方法使用）
+    saveSelection = function() {
+      // selectedRange 是一个全局变量
+      editor.electedRange = getCurrentRange();
+    },
+
+    //将当前 selectedRange 变量中存储的范围，恢复到选择区域中
+    restoreSelection = function() {
+      //获取一个选区。（这时候一般都是空选取，因为要等待用存储的range来restore这个选取）
+      var selection = window.getSelection();
+
+      // selectedRange 是一个全局变量
+      if (editor.selectedRange) {
+        try {
+          selection.removeAllRanges();
+        } catch (ex) {
+          var textRange = document.body.createTextRange();
+          textRange.select();
+          document.selection.empty();
+        }
+
+        //将 selectedRange 存储的范围，添加到这个选取上
+        selection.addRange(editor.selectedRange);
+      }
+    };
+
+
+  //这个三个方法的应用顺序一般是：
+  //1. 鼠标选中editor的一段内容之后，立即执行 saveSelection() 方法
+  //2. 当你想执行 execCommand（例如加粗、插入链接等） 方法之前，先调用 restoreSelection() 方法
 
 
   function mouseMove(ev) {
     Ev = ev || window.event;
     var mousePos = mouseCoords(ev);
-    //console.log(rsMouse.x + "===" + rsMouse.y);
+    //console.log(rsMouse.x + "    ===" + rsMouse.y);
     return rsMouse = {
       x: mousePos.x,
       y: mousePos.y
@@ -173,49 +226,3 @@ $(function() {
     var selectText = text.substr(start, (end - start)); //textarea中，选中的文本
   }
 })(jQuery, window, document);
-
-
-
-//获取当前的选中范围
-getCurrentRange = function() {
-    //获取浏览器的选择区域（注意，低版本IE不支持，有另外的兼容性方案）
-    //如果此时鼠标选中一段文字，则将获取选中的内容；如果此时鼠标未选中任何内容，则返回空内容（不是null）
-    var sel = window.getSelection();
-
-    if (sel.getRangeAt && sel.rangeCount) {
-      //检查这段选中区域选中的范围（range），并返回第一个range
-      //浏览器支持一个selection中多个range，但是富文本编辑器是通过鼠标选中得到range，此时只有一个，取第一个即可
-      return sel.getRangeAt(0);
-    }
-  },
-
-  //将当前选中的范围，保存到一个变量中（供 restoreSelection 方法使用）
-  saveSelection = function() {
-    // selectedRange 是一个全局变量
-    selectedRange = getCurrentRange();
-  },
-
-  //将当前 selectedRange 变量中存储的范围，恢复到选择区域中
-  restoreSelection = function() {
-    //获取一个选区。（这时候一般都是空选取，因为要等待用存储的range来restore这个选取）
-    var selection = window.getSelection();
-
-    // selectedRange 是一个全局变量
-    if (selectedRange) {
-      try {
-        selection.removeAllRanges();
-      } catch (ex) {
-        var textRange = document.body.createTextRange();
-        textRange.select();
-        document.selection.empty();
-      }
-
-      //将 selectedRange 存储的范围，添加到这个选取上
-      selection.addRange(selectedRange);
-    }
-  },
-
-
-  //这个三个方法的应用顺序一般是：
-  //1. 鼠标选中editor的一段内容之后，立即执行 saveSelection() 方法
-  //2. 当你想执行 execCommand（例如加粗、插入链接等） 方法之前，先调用 restoreSelection() 方法

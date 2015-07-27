@@ -33,7 +33,7 @@
         <i title="跳到尾页" class="ppright rs rs-angle-double-right"></i>
         <i title="下一页" class="pright rs rs-angle-right"></i>
       </div>
-      <div class="reader-box">
+      <div class="reader-box editor">
         <div class="wrapper">
           <div class="content artcontent" contentEditable="true" ></div>
         </div>
@@ -48,6 +48,9 @@
     <script src="./js/mintools.js" charset="utf-8"></script>
     <script src="js/tips.js" charset="utf-8"></script>
     <script type="text/javascript">
+    $(".pined").pin({
+      containerSelector:".wrapper"
+    });
        ; (function ($) {
            /*
             * 文本域光标操作（选、添、删、取）的jQuery扩展 @Mr.Think http://mrthink.net/text-field-jquery-extend/

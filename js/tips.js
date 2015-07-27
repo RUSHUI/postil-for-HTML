@@ -1,10 +1,8 @@
 window.ljtips = function() {
   var html =
-    "<div class=\"lj-tipsWrap\" id=\"tipsWrap-<%=r%>\">\
-						<div></div>\
-						<span class=\"lj-in lj-<%=p%>\"><span class=\"lj-in\"></span></span>\
-						<a href=\"javascript:void(0)\" id=\"ljClose<%=r%>\" class=\"lj-close\">x</a>\
-					</div>";
+    "<div class='lj-tipsWrap' id='tipsWrap-<%=r%>'><div></div>" +
+    "<span class='lj-in lj-<%=p%>'><span class='lj-in'></span></span>" +
+    "<a id='ljClose<%=r%>' class='lj-close'>x</a></div>";
   var dg = function(id) {
     return document.getElementById(id);
   };
@@ -29,29 +27,29 @@ window.ljtips = function() {
     var pos = {
       left: function(w, h) {
         return {
-          top: offset.top,
-          left: offset.left - w - of
+          top: offset.top - 90,
+          left: offset.left - w - of - offset.width * .1
         }
       },
       top: function(w, h) {
         return {
-          top: offset.top - h - of,
-          left: offset.left
+          top: offset.top - h - of - 90,
+          left: offset.left - offset.width * 0.1
         }
       },
       right: function(w, h) {
         console.log(offset.left, w);
         return {
-          top: offset.top,
+          top: offset.top - 90,
           //left: offset.left + width + of
-          left: offset.left + offset.width + of
+          left: offset.left + offset.width + of - offset.width * .1
         }
       },
       bottom: function(w, h) {
         return {
-          top: offset.top,
+          top: offset.top - 90,
           //  top: offset.top + height + of,
-          left: offset.left
+          left: offset.left - offset.width * .1
         }
       }
     };
@@ -59,10 +57,7 @@ window.ljtips = function() {
 
     _this.show = function(obj, dp) {
       _this.parent = dp;
-      if (elem.lock) {
-        elem.lock = false;
-        return;
-      } else elem.lock = true;
+
       //获取到了盒子的位置参数
       offset = elem.getBoundingClientRect();
       offset = obj.clientRects;
@@ -73,8 +68,11 @@ window.ljtips = function() {
       var wrap = _this.append(obj.p, obj.closeBtn || false);
       dt(wrap, "DIV")[0].innerHTML = obj.content;
       var p = pos[obj.p](wrap.offsetWidth, wrap.offsetHeight);
-      wrap.style.top = p.top + top + "px";
-      wrap.style.left = p.left + left + "px";
+      // wrap.style.top = p.top + top + "px";
+      // wrap.style.left = p.left + left + "px";
+      console.log(obj.rsMouse.x, obj.rsMouse.y);
+      wrap.style.top = (obj.rsMouse.y - 105) + "px";
+      wrap.style.left = (obj.rsMouse.x - wrap.offsetWidth * .3) + "px";
       obj.time && setTimeout(function() {
         _this.clear(dg(prefix + rand));
       }, obj.time);

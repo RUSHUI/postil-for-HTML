@@ -8,9 +8,9 @@
 }
 .reader-tools{
   height: 35px;
-font-size: 30px;
-color: rgba(125, 119, 124, 0.31);
-border-bottom: 1px solid #CFB36D;
+  font-size: 30px;
+  color: rgba(125, 119, 124, 0.31);
+  border-bottom: 1px solid #CFB36D;
 }
 
 .reader-tools i {
@@ -29,31 +29,26 @@ border-bottom: 1px solid #CFB36D;
 
 .reader-box{
   font-family: 微软雅黑;
-font-size: 16px;
-color: #555;
-width: 90%;
-margin: 15px auto 5px;
-box-sizing: content-box;
-overflow: hidden;
-position: absolute;
-top: 35px;
-left: 0;
-right: 0;
-bottom: 0;
+  font-size: 16px;
+  color: #555;
+  overflow: hidden;
+  position: absolute;
+  top: 35px;
+  left: 50px;
+  bottom: 0;
+  right: 50px;
 }
 .wrapper {
-    width: 100%;
-    padding-right: 20px;
-    height: 100%;
-    position: absolute;
-    overflow-y: auto;
-    overflow-x: hidden;
+  height: 100%;
+  position: absolute;
+  overflow-y: auto;
+  right: -17px;
 }
 
 .content {
-    outline: 0;
-    position: relative;
-    overflow: hidden;
+  outline: 0;
+  position: relative;
+  padding: 0 10px;
 }
 /*
 .content:before{

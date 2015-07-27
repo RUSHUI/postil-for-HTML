@@ -19,6 +19,54 @@ function getSelectedText() {
         return document.selection.createRange().text;
     }
 }
+
+
+
+
+//获取当前的选中范围
+getCurrentRange = function() {
+    //获取浏览器的选择区域（注意，低版本IE不支持，有另外的兼容性方案）
+    //如果此时鼠标选中一段文字，则将获取选中的内容；如果此时鼠标未选中任何内容，则返回空内容（不是null）
+    var sel = window.getSelection();
+
+    if (sel.getRangeAt && sel.rangeCount) {
+      //检查这段选中区域选中的范围（range），并返回第一个range
+      //浏览器支持一个selection中多个range，但是富文本编辑器是通过鼠标选中得到range，此时只有一个，取第一个即可
+      return sel.getRangeAt(0);
+    }
+  },
+
+  //将当前选中的范围，保存到一个变量中（供 restoreSelection 方法使用）
+  saveSelection = function() {
+    // selectedRange 是一个全局变量
+    selectedRange = getCurrentRange();
+  },
+
+  //将当前 selectedRange 变量中存储的范围，恢复到选择区域中
+  restoreSelection = function() {
+    //获取一个选区。（这时候一般都是空选取，因为要等待用存储的range来restore这个选取）
+    var selection = window.getSelection();
+
+    // selectedRange 是一个全局变量
+    if (selectedRange) {
+      try {
+        selection.removeAllRanges();
+      } catch (ex) {
+        var textRange = document.body.createTextRange();
+        textRange.select();
+        document.selection.empty();
+      }
+
+      //将 selectedRange 存储的范围，添加到这个选取上
+      selection.addRange(selectedRange);
+    }
+  },
+
+
+  //这个三个方法的应用顺序一般是：
+  //1. 鼠标选中editor的一段内容之后，立即执行 saveSelection() 方法
+  //2. 当你想执行 execCommand（例如加粗、插入链接等） 方法之前，先调用 restoreSelection() 方法
+
 </script>
 
 <title></title>
