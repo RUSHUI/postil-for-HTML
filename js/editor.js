@@ -1,11 +1,46 @@
+;
+(function($, win, doc, ufd) {
+
+  if (!("rs" in win)) {
+    var rs = {};
+  }
+
+  function Editor() {
+    var config = {};
+    this.init();
+  }
+  Editor.prototype = {
+    constructor: Editor,
+    init: function() {
+      this.createDom();
+      this.bindEvent();
+    },
+    createDom: function() {},
+    bindEvent: function() {},
+    show: function() {},
+    hide: function() {},
+    destory: function() {}
+  };
+
+  var editor = new Editor();
+
+})(jQuery, window, document);
+
+
 $(function() {
+  console.log($);
   var editor = {};
-  var elm = $(".editor"); //array
+  var $elm = $(".editor"); //array
   var rsMouse = {};
   editor.posBox = [];
-  elm.forEach(function(idx) {
-    var ths = idx.getBoundingClientRect();
+  var elms = Array.prototype.slice.call($elm);
+  elms.forEach(function(item, idx, array) {
+    var $item = $(item);
+    $item.attr("data-idx", idx);
+    //获取每个编辑器的ClientRect参数
+    var ths = item.getBoundingClientRect();
     editor.posBox.push({
+      index: idx,
       left: ths.left,
       right: ths.right,
       top: ths.top,
@@ -14,6 +49,9 @@ $(function() {
       height: ths.height
     });
   });
+  var curEditor = editor.posBox[0];
+
+  //到父窗口的位置转换
 
   // 初始化文章
   $.ajax({
@@ -80,36 +118,57 @@ $(function() {
 
   $(".contentBox .content").bind("keyup keydown", function(e) {
     if (e.keyCode !== 16) { //shift键
-      console.log('内容区键盘key事件被阻止');
+      console.log('=====内容区键盘已禁用=====');
       return false;
     }
     e.stopPropagation();
   });
   //阅读器内容选中处理
   $(".contentBox .artcontent").bind("mousedown", function(e) {
-    console.log("鼠标按下事件被捕获，然而什么都没干");
+    console.log("=====鼠标按下=====");
   });
+
+  $(".contentBox .artcontent").bind("mousemove", function(e) {
+
+  });
+
+
+
   $(".contentBox .artcontent").bind("mouseup", function(e) {
-    console.log("鼠标松开事件被捕获");
+    console.log("=====鼠标松开=====");
+    rsMouse.targetPos = rsMouse.tmpPos;
+    console.log("=====光标位置：%o=====", rsMouse.targetPos);
     rsSelectObject(this, e);
+    saveSelection();
   });
-  $(".contentBox .artcontent").bind("blur", function(e) {
+  $(".contentBox .artcontent").get(0).onblur = function(e) {
     restoreSelection();
-  });
+  };
   var insertSign = function(range) {
     var sign = range.createContextualFragment("<sign></sign>");
   };
   var rsSelectObject = function(elm, e) {
     var _select, _content = elm.innerHTML;
     if (null !== (_select = $.getSelectionObject())) {
+      var _tPos = $(elm).position();
+      var pos = {
+        x: rsMouse.targetPos.x - curEditor.left + _tPos.left,
+        y: rsMouse.targetPos.y - curEditor.top - _tPos.top
+      };
+      $(".tools").css({
+        display: "block",
+        left: pos.x + "px",
+        top: pos.y + "px"
+      });
+
       if (!_select.collapsed) { //起始和结束是否重合
-        console.log("被选文本%o的起始位置(起始偏移):%o,结束位置:%o,结束尾偏移:%o", _select.toString(), _select.startOffset,
-          _select.endOffset, _content.length - _select.endOffset);
+
+        //  console.log("被选文本%o的起始位置(起始偏移):%o,结束位置:%o,结束尾偏移:%o", _select.toString(), _select.startOffset,
+        //  _select.endOffset, _content.length - _select.endOffset);
         saveSelection();
         insertSign(_select);
-        console.log(rsMouse.x, rsMouse.y);
       } else {
-        console.log("您将鼠标插入在当前文本的%o文字之后", _select.startOffset);
+        console.log("请插入内容", _select.startOffset);
       }
     } else {
       $.alert("选择器获取失败！！！").find(".mask-msg-box").css("color", "rgb(253, 135, 135)");
@@ -131,7 +190,7 @@ $(function() {
     //将当前选中的范围，保存到一个变量中（供 restoreSelection 方法使用）
     saveSelection = function() {
       // selectedRange 是一个全局变量
-      editor.electedRange = getCurrentRange();
+      editor.selectedRange = getCurrentRange();
     },
 
     //将当前 selectedRange 变量中存储的范围，恢复到选择区域中
@@ -153,8 +212,37 @@ $(function() {
         selection.addRange(editor.selectedRange);
       }
     };
+  $.toolTips = function(ops) {
+    var config = {
+      direction: "top",
+      theme: "default",
+      container: $("body")
+    };
+    var options = $.extend(config, ops);
+    var html =
+      "<div class='tools'>\
+          <ul>\
+            <li data-cmd='Bold' data-ops='' tyle='font-weight:bold;'><a>文字加粗</a></li>" +
+      "<li data-cmd='ForeColor' data-ops='red' style='color:red;'><a>文字红色</a></li>" +
+      "<li data-cmd='BackColor' data-ops='#FBFBA7' style='background-color:#FBFBA7;'><a>背景高亮</a></li>" +
+      "<li data-cmd='ForeColor' data-ops='#FBFBA7' style='color:#FBFBA7;'><a>文字高亮</a></li>" +
+      "</ul>\
+        </div>";
+    var tools = $(html).appendTo(options.container);
+    tools.find("li").each(function() {
+      $(this).click(function() {
+        $(curEditor).focus();
+        var cmd = $(this).attr("data-cmd"),
+          ops = $(this).attr("data-ops");
+        document.execCommand(cmd, 0, ops);
+        tools.hide();
+      });
+    });
+  };
 
-
+  $.toolTips({
+    container: $(".wrapper")
+  });
   //这个三个方法的应用顺序一般是：
   //1. 鼠标选中editor的一段内容之后，立即执行 saveSelection() 方法
   //2. 当你想执行 execCommand（例如加粗、插入链接等） 方法之前，先调用 restoreSelection() 方法
@@ -164,7 +252,7 @@ $(function() {
     Ev = ev || window.event;
     var mousePos = mouseCoords(ev);
     //console.log(rsMouse.x + "    ===" + rsMouse.y);
-    return rsMouse = {
+    return {
       x: mousePos.x,
       y: mousePos.y
     };
@@ -183,7 +271,9 @@ $(function() {
     };
   }
 
-  $(".content").get(0).onmousemove = mouseMove;
+  $(".content").bind("mousemove", function(e) {
+    rsMouse.tmpPos = mouseMove(e);
+  });
 });
 
 

@@ -51,3 +51,28 @@ var cutstr = function(str, len) {
     return str;
   }
 };
+
+
+
+;
+(function($, win, doc, ufd) {
+  function Editor() {
+    var config = {};
+    this.init();
+  }
+  Editor.prototype = {
+    constructor: Editor,
+    init: function() {
+      this.createDom();
+      this.bindEvent();
+    },
+    createDom: function() {},
+    bindEvent: function() {},
+    show: function() {},
+    hide: function() {},
+    destory: function() {}
+  };
+
+  var editor = new Editor();
+
+})(jQuery, window, document);

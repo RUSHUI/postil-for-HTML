@@ -1,3 +1,43 @@
+/*!
+ * @packet brooder.mobi.util.mintools;
+ */
+
+
+;
+(function($, win, doc) {
+  $.toolTips = function(ops) {
+    var config = {
+      direction: "top",
+      theme: "default",
+      container: $("body")
+    };
+
+    var options = $.extend(config, ops);
+    var html =
+      "<div class='tools'>\
+        <ul>\
+          <li data-cmd='Bold' data-ops='' tyle='font-weight:bold;'><a>文字加粗</a></li>" +
+      "<li data-cmd='ForeColor' data-ops='red' style='color:red;'><a>文字红色</a></li>" +
+      "<li data-cmd='BackColor' data-ops='#FBFBA7' style='background-color:#FBFBA7;'><a>背景高亮</a></li>" +
+      "<li data-cmd='ForeColor' data-ops='#FBFBA7' style='color:#FBFBA7;'><a>文字高亮</a></li>" +
+      "</ul>\
+      </div>";
+    var tools = $(html).appendTo(options.container);
+    tools.find("li").each(function() {
+      $(this).click(function() {
+        $(".content").focus();
+        var cmd = $(this).attr("data-cmd"),
+          ops = $(this).attr("data-ops");
+        document.execCommand(cmd, 0, ops);
+        tools.hide();
+      });
+    });
+  };
+
+})(jQuery, window, document);
+
+
+
 window.ljtips = function() {
   var html =
     "<div class='lj-tipsWrap' id='tipsWrap-<%=r%>'><div></div>" +
