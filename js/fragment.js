@@ -76,3 +76,27 @@ var cutstr = function(str, len) {
   var editor = new Editor();
 
 })(jQuery, window, document);
+
+
+
+window.getJSONP = function(url, callback) {
+  var timeStamp = new Date().getTime(),
+    name = 'jsonp_' + timeStamp,
+    callbackWrap = 'getJSONP.' + name,
+    script = document.createElement('script');
+  if (url.indexOf('?') === -1) {
+    url += '?jsonp=' + callbackWrap;
+  } else {
+    url += '&jsonp=' + callbackWrap;
+  }
+  getJSONP[name] = function(response) {
+    try {
+      callback(response);
+    } finally {
+      delete getJSONP[name];
+      script.parentNode.removeChild(script);
+    }
+  };
+  script.src = url;
+  document.body.appendChild(script);
+};

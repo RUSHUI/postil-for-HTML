@@ -21,8 +21,7 @@
     hide: function() {},
     destory: function() {}
   };
-
-  var editor = new Editor();
+  win.editor = new Editor();
 
 })(jQuery, window, document);
 
@@ -126,6 +125,7 @@ $(function() {
   //阅读器内容选中处理
   $(".contentBox .artcontent").bind("mousedown", function(e) {
     console.log("=====鼠标按下=====");
+    $(".tools").hide();
   });
 
   $(".contentBox .artcontent").bind("mousemove", function(e) {
@@ -152,22 +152,34 @@ $(function() {
     if (null !== (_select = $.getSelectionObject())) {
       var _tPos = $(elm).position();
       var pos = {
-        x: rsMouse.targetPos.x - curEditor.left + _tPos.left,
-        y: rsMouse.targetPos.y - curEditor.top - _tPos.top
+        x: rsMouse.targetPos.x - curEditor.left + _tPos.left - tooltips.rect().width / 2 -
+          10,
+        y: rsMouse.targetPos.y - curEditor.top - _tPos.top - tooltips.rect().height - 20 -
+          10
       };
-      $(".tools").css({
-        display: "block",
-        left: pos.x + "px",
-        top: pos.y + "px"
-      });
-
+      var diffx = curEditor.width - tooltips.rect().width;
+      var diffy = curEditor.height - tooltips.rect().height;
+      pos.x = pos.x < 0 ? 0 : pos.x;
+      pos.x = pos.x > diffx ? diffx : pos.x;
+      pos.y = pos.y < 0 ? 0 : pos.y;
+      pos.y = pos.y > diffy ? diffy : pos.y;
       if (!_select.collapsed) { //起始和结束是否重合
+        $(".tools").css({
+          display: "block",
+          left: pos.x + "px",
+          top: pos.y + "px"
+        });
 
         //  console.log("被选文本%o的起始位置(起始偏移):%o,结束位置:%o,结束尾偏移:%o", _select.toString(), _select.startOffset,
         //  _select.endOffset, _content.length - _select.endOffset);
         saveSelection();
         insertSign(_select);
       } else {
+        $(".tools").css({
+          display: "none",
+          left: pos.x + "px",
+          top: pos.y + "px"
+        });
         console.log("请插入内容", _select.startOffset);
       }
     } else {
@@ -222,15 +234,22 @@ $(function() {
     var html =
       "<div class='tools'>\
           <ul>\
-            <li data-cmd='Bold' data-ops='' tyle='font-weight:bold;'><a>文字加粗</a></li>" +
-      "<li data-cmd='ForeColor' data-ops='red' style='color:red;'><a>文字红色</a></li>" +
-      "<li data-cmd='BackColor' data-ops='#FBFBA7' style='background-color:#FBFBA7;'><a>背景高亮</a></li>" +
-      "<li data-cmd='ForeColor' data-ops='#FBFBA7' style='color:#FBFBA7;'><a>文字高亮</a></li>" +
+            <li data-cmd='Bold' data-ops=''   title='文字加粗'><i class='rs rs-bold'></i></li>" +
+      "<li data-cmd='Italic'    data-ops=''   title='文字斜体'><i class='rs rs-italic' title='文字斜体'></i></li>" +
+      "<li data-cmd='Underline' data-ops=''   title='字下划线'><i class='rs rs-underline'></i></li>" +
+      "<li data-cmd='StrikeThrough' data-ops='' title='字删除线'><i class='rs rs-strikethrough'></i></li>" +
+
+      "<li data-cmd='ForeColor' data-ops='rgba(234, 236, 138, 0.76)'   title='文字高亮'><i class='rs rs-font'></i></li>" +
+      "<li data-cmd='ForeColor' data-ops=''   title='文字颜色'><i class='fortColor rs rs-font'></i><div class='rs-colorpicker'></div></li>" +
+      "<li data-cmd='BackColor' data-ops='rgba(234, 236, 138, 0.76)'   title='背景高亮'><i class='rs rs-now_wallpaper rs-color_lens'></i></li>" +
+      "<li data-cmd='BackColor' data-ops=''   title='背景颜色'><i class='backColor rs rs-now_wallpaper rs-color_lens'></i><div class='rs-colorpicker'></div></li>" +
       "</ul>\
         </div>";
     var tools = $(html).appendTo(options.container);
+
     tools.find("li").each(function() {
       $(this).click(function() {
+        restoreSelection();
         $(curEditor).focus();
         var cmd = $(this).attr("data-cmd"),
           ops = $(this).attr("data-ops");
@@ -238,11 +257,24 @@ $(function() {
         tools.hide();
       });
     });
+    $.fn.jPicker.defaults.images.clientPath = 'assets/images/jPicker/';
+    $(".rs-colorpicker").jPicker({
+      window: {
+        expandable: true
+      }
+    });
+    return tools;
   };
 
-  $.toolTips({
+  var tooltips = $.toolTips({
     container: $(".wrapper")
   });
+  tooltips.rect = function() {
+    return {
+      width: $(".wrapper").find(".tools").width(),
+      height: $(".wrapper").find(".tools").height()
+    };
+  };
   //这个三个方法的应用顺序一般是：
   //1. 鼠标选中editor的一段内容之后，立即执行 saveSelection() 方法
   //2. 当你想执行 execCommand（例如加粗、插入链接等） 方法之前，先调用 restoreSelection() 方法
@@ -270,6 +302,18 @@ $(function() {
       y: ev.clientY + document.body.scrollTop - document.body.clientTop
     };
   }
+
+  $.ajax({
+    url: "./js/a.js",
+    dataType: "jsonp",
+    jsonp: "callback",
+    success: function() {
+      alert(3);
+    }
+  });
+  // callback = function(response) {
+  //   alert(response.text);
+  // }
 
   $(".content").bind("mousemove", function(e) {
     rsMouse.tmpPos = mouseMove(e);
