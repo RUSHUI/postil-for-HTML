@@ -15,8 +15,17 @@ a:hover {    text-shadow: 0px 1px 2px white;}
 
 /*	j.mp/webkit-tap-highlight-color */
 a:link {-webkit-tap-highlight-color: #fcd700;}
-
-ins {background-color: #fcd700; color: #000; text-decoration: none;}
+ins .icons{
+  width: 20px;
+  height: 17px;
+}
+ins {
+  background-color: rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+ins:hover{
+  color:#222;
+  }
 mark {background-color: #fcd700; color: #000; font-style: italic; font-weight: bold;}
 
 /* Mozilla dosen't style place holders by default */

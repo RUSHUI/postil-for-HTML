@@ -42,10 +42,19 @@
 }
 .wrapper {
   height: 100%;
-    position: absolute;
-    overflow-y: auto;
-    overflow-x: hidden;
-    /*right:-17px;*/
+/* width: 100%; */
+position: absolute;
+overflow-y: auto;
+overflow-x: hidden;
+right: -20px;
+left: 0;
+}
+.content-right{
+  position: relative;
+  width: 150px;
+}
+.content-left{
+  /*width: 100%;*/
 }
 .content {
   outline: 0;
@@ -66,6 +75,7 @@
     background:rgba(155,155,240,.7);
     color:#eee;
 }
+
 /*
 .content:before{
   content: "";
@@ -101,10 +111,15 @@
   position: absolute;
   width: 0;
   height: 0;
+  left: 50%;
   margin-left: -10px;
   border-left: 20px solid transparent;
   border-right: 20px solid transparent;
   border-top: 20px solid #EADD99;
+}
+.reader-tools .rs-edit::before {
+    top: 3px;
+    position: absolute;
 }
 .tools li{
   border-right: 1px solid #aaa;
@@ -120,7 +135,7 @@
 .tools li:last-child{
   border-right: none;
 }
-.tools li:hover .fortColor,.tools li:hover .backColor{
+.tools li .fortColor,.tools li .backColor{
   display: none;
 }
 .tools li:hover .jPicker{
@@ -130,7 +145,7 @@ table.jPicker{
   display: block;
 }
 .jPicker{
-  display: none;
+  /*display: none;*/
 }
 .tools li:nth-child(4n) {
     border-right: none;

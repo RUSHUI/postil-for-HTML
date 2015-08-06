@@ -7,6 +7,7 @@
 
   function Editor() {
     var config = {};
+
     this.init();
   }
   Editor.prototype = {
@@ -29,7 +30,7 @@
 $(function() {
   console.log($);
   var editor = {};
-  var $elm = $(".editor"); //array
+  var $elm = $(".editor .wrapper"); //array
   var rsMouse = {};
   editor.posBox = [];
   var elms = Array.prototype.slice.call($elm);
@@ -39,6 +40,7 @@ $(function() {
     //获取每个编辑器的ClientRect参数
     var ths = item.getBoundingClientRect();
     editor.posBox.push({
+      element:item,
       index: idx,
       left: ths.left,
       right: ths.right,
@@ -88,15 +90,15 @@ $(function() {
 
   $.getSelectionObject = getCurRange;
   //获取一个文章内容api
-  var render = function(params) {
+  var render = function(params,fn) {
     $.ajax({
       data: {
         page: params.page
       },
       url: params.url,
       success: function(response) {
-        $(".reader-box .content").html(response);
-        $.alert("render sucess!");
+        fn&&fn(response);
+
       },
       failure: function() {
         $.alert("文章获取失败！！！").find(".mask-msg-box").css("color", "rgb(253, 135, 135)");
@@ -107,14 +109,40 @@ $(function() {
 
   //阅读器顶部工具功能实现（暂未实现）
   $(".contentBox .reader-tools").find("i").each(function() {
-    $(this).click(function(e) {
+    $(this).click(function(){
+      if($(this).hasClass("read")){
+        $(curEditor.element).parent().attr("contentEditable","false");
+        $(curEditor.element).parent().css({
+          "border":"none",
+          "outline":"none"
+        });
+        $.alert("阅读模式");
+      }else{
+        $(curEditor.element).parent().attr("contentEditable","true");
+        $(curEditor.element).parent().css({
+          "border":"2px solid #757575",
+          "outline":"#7A7A7B dotted 3px"
+        });
+        $.alert("编辑模式");
+      }
+    });
+
+  });
+  $(".content").bind("mousewheel",function(e){
+    var $content=$(".reader-box .content").get(0),
+    scrollTop =$content.parentNode.scrollTop,
+    clientHeight= $($content.parentNode).height(),
+    scrollHeight=$content.parentNode.scrollHeight;
+    if(scrollTop+clientHeight>=scrollHeight){
       render({
         url: "./assets/common.txt",
         page: 0
+      },function(text){
+        $content.innerHTML+=text;
+        $.alert("获取成功");
       });
-    });
+    }
   });
-
   $(".contentBox .content").bind("keyup keydown", function(e) {
     if (e.keyCode !== 16) { //shift键
       console.log('=====内容区键盘已禁用=====');
@@ -122,28 +150,37 @@ $(function() {
     }
     e.stopPropagation();
   });
+  $(".contentBox .content").blur(function(e) {
+console.log("blur");
+    //restoreSelection();
+  });
   //阅读器内容选中处理
-  $(".contentBox .artcontent").bind("mousedown", function(e) {
+  $(".contentBox .content").bind("mousedown", function(e) {
     console.log("=====鼠标按下=====");
     $(".tools").hide();
   });
 
-  $(".contentBox .artcontent").bind("mousemove", function(e) {
+  $(".contentBox .content").bind("mousemove", function(e) {
 
   });
 
 
 
-  $(".contentBox .artcontent").bind("mouseup", function(e) {
+  $(".contentBox .content").bind("mouseup", function(e) {
     console.log("=====鼠标松开=====");
     rsMouse.targetPos = rsMouse.tmpPos;
     console.log("=====光标位置：%o=====", rsMouse.targetPos);
-    rsSelectObject(this, e);
+    if($(curEditor.element).parent().attr("contentEditable")==="true"){
+      rsSelectObject(this, e);
+    }
+
     saveSelection();
   });
-  $(".contentBox .artcontent").get(0).onblur = function(e) {
-    restoreSelection();
-  };
+  $(".content").attr("tabindex",0);
+
+  $(".content").attr("hidefocus","true");
+
+
   var insertSign = function(range) {
     var sign = range.createContextualFragment("<sign></sign>");
   };
@@ -151,6 +188,9 @@ $(function() {
     var _select, _content = elm.innerHTML;
     if (null !== (_select = $.getSelectionObject())) {
       var _tPos = $(elm).position();
+      console.log("==鼠标位置L:%o,T:%o=====编辑器框的L:%o,T:%o=====提示框的W:%o,H:%o==",
+      rsMouse.targetPos.x,rsMouse.targetPos.y,curEditor.left,curEditor.top,
+      tooltips.rect().width/2,tooltips.rect().height);
       var pos = {
         x: rsMouse.targetPos.x - curEditor.left + _tPos.left - tooltips.rect().width / 2 -
           10,
@@ -162,7 +202,7 @@ $(function() {
       pos.x = pos.x < 0 ? 0 : pos.x;
       pos.x = pos.x > diffx ? diffx : pos.x;
       pos.y = pos.y < 0 ? 0 : pos.y;
-      pos.y = pos.y > diffy ? diffy : pos.y;
+      //pos.y = pos.y > diffy ? diffy : pos.y;
       if (!_select.collapsed) { //起始和结束是否重合
         $(".tools").css({
           display: "block",
@@ -234,15 +274,17 @@ $(function() {
     var html =
       "<div class='tools'>\
           <ul>\
-            <li data-cmd='Bold' data-ops=''   title='文字加粗'><i class='rs rs-bold'></i></li>" +
-      "<li data-cmd='Italic'    data-ops=''   title='文字斜体'><i class='rs rs-italic' title='文字斜体'></i></li>" +
-      "<li data-cmd='Underline' data-ops=''   title='字下划线'><i class='rs rs-underline'></i></li>" +
-      "<li data-cmd='StrikeThrough' data-ops='' title='字删除线'><i class='rs rs-strikethrough'></i></li>" +
+            <li data-cmd='Bold' class='cmd' data-ops=''   title='文字加粗'><i class='rs rs-bold'></i></li>" +
+      "<li data-cmd='Italic'    class='cmd' data-ops=''   title='文字斜体'><i class='rs rs-italic' title='文字斜体'></i></li>" +
+      "<li data-cmd='Underline' class='cmd' data-ops=''   title='字下划线'><i class='rs rs-underline'></i></li>" +
+      "<li data-cmd='StrikeThrough' class='cmd' data-ops='' title='字删除线'><i class='rs rs-strikethrough'></i></li>" +
 
-      "<li data-cmd='ForeColor' data-ops='rgba(234, 236, 138, 0.76)'   title='文字高亮'><i class='rs rs-font'></i></li>" +
-      "<li data-cmd='ForeColor' data-ops=''   title='文字颜色'><i class='fortColor rs rs-font'></i><div class='rs-colorpicker'></div></li>" +
-      "<li data-cmd='BackColor' data-ops='rgba(234, 236, 138, 0.76)'   title='背景高亮'><i class='rs rs-now_wallpaper rs-color_lens'></i></li>" +
-      "<li data-cmd='BackColor' data-ops=''   title='背景颜色'><i class='backColor rs rs-now_wallpaper rs-color_lens'></i><div class='rs-colorpicker'></div></li>" +
+      "<li data-cmd='ForeColor' class='cmd' data-ops='rgb(255, 255, 153)'   title='文字高亮'><i class='rs rs-font'></i></li>" +
+      "<li data-cmd='ForeColor' class='colorpicker' data-ops=''   title='文字颜色'><i class='fortColor rs rs-font'></i><div class='rs-colorpicker'></div></li>" +
+      "<li data-cmd='BackColor' class='cmd' data-ops='rgb(255, 255, 153)'   title='背景高亮'><i  style='font-size: 16px;' class='rs rs-now_wallpaper rs-color_lens'></i></li>" +
+      "<li data-cmd='BackColor' class='colorpicker' data-ops=''   title='背景颜色'><i class='backColor rs rs-now_wallpaper rs-color_lens'></i><div class='rs-colorpicker'></div></li>" +
+      "<li data-cmd='undo' class='cmd' data-ops=''   title='撤销命令'><i  style='font-size: 16px;' class=' rs rs-undo'></i></li>" +
+      "<li data-cmd='Postil' class='postil' data-ops=''   title='添加批注'><i style='font-size: 16px;' class=' rs rs-note_add'></i></li>" +
       "</ul>\
         </div>";
     var tools = $(html).appendTo(options.container);
@@ -250,19 +292,93 @@ $(function() {
     tools.find("li").each(function() {
       $(this).click(function() {
         restoreSelection();
-        $(curEditor).focus();
-        var cmd = $(this).attr("data-cmd"),
-          ops = $(this).attr("data-ops");
-        document.execCommand(cmd, 0, ops);
-        tools.hide();
+        if($(this).hasClass("colorpicker")){
+          config.current=$(this);
+        }else if($(this).hasClass("cmd")){
+          $(curEditor).focus();
+          var cmd = $(this).attr("data-cmd"),
+            ops = $(this).attr("data-ops");
+          document.execCommand(cmd, 0, ops);
+          tools.hide();
+        }else{
+          tools.hide();
+          $.prompt("输入批注",true,function(value){
+            var range=editor.selectedRange;
+
+        			// //IE之外的浏览器，如果在选择内容包含其他标签的一部分的时候会报异常
+        			// var mark = document.createElement("ins");
+        			// mark.setAttribute("comment", value);
+        			// mark.className = "postil";
+        			// mark.id=new Date().getTime();
+        			// range.surroundContents(mark);
+
+        			var selected = range.extractContents().textContent;
+        			var text = "[ins id='"+(new Date().getTime())+"' comment='"+value+"']"+selected+"[/ins]";
+        			var textNode = document.createTextNode(text);
+        			range.insertNode(textNode);
+        			var content = $(".content").html();
+        			var reg = /\[ins id='(\d*)' comment='([\w\W]*)']([\w\W]*)\[\/ins]/gi;
+        			console.log(reg.exec(content));
+        			var id = RegExp.$1,
+        			comment = RegExp.$2,
+        			c = RegExp.$3;
+              console.log(id,comment);
+        			var reHtml = "<ins id='"+id+"' comment='"+comment+"' class='postil' >"+c+"<svg class='icons minipostil icon-bubble2'><use xlink:href='#icon-bubble2'></use></svg></ins>";
+        			content = content.replace(reg, reHtml);
+        			$(".content").html(content);
+              $(".content .minipostil").each(function(){
+                $(this).click(function(e){
+                  e.preventDefault();
+                 e.stopPropagation();
+                   $.confirm($(this.parentNode).attr("comment"),function(){
+
+                   });
+
+                });
+              });
+          });
+        }
       });
     });
     $.fn.jPicker.defaults.images.clientPath = 'assets/images/jPicker/';
-    $(".rs-colorpicker").jPicker({
-      window: {
-        expandable: true
-      }
-    });
+    $(".rs-colorpicker").jPicker(
+      {
+        window: {
+          expandable: true
+        }
+      },
+        function(color, context)
+        {
+          var all = color.val('all');
+          //alert('Color chosen - hex: ' + (all && '#' + all.hex || 'none') + ' - alpha: ' + (all && all.a + '%' || 'none'));
+          var rgba= "rgba("+all.r+","+all.g+","+all.b+","+(all.a/255)+")";
+
+          $(curEditor).focus();
+          config.current.attr("data-ops",rgba);
+          var cmd = config.current.attr("data-cmd"),
+            ops =rgba ;
+          document.execCommand(cmd, 0, ops);
+          tools.hide();
+
+          $('#Commit').css(
+            {
+              backgroundColor: all && '#' + all.hex || 'transparent'
+            }); // prevent IE from throwing exception if hex is empty
+        },
+        function(color, context)
+        {
+          //if (context == LiveCallbackButton.get(0)) alert('Color set from button');
+          var hex = color.val('hex');
+          // LiveCallbackElement.css(
+          //   {
+          //     backgroundColor: hex && '#' + hex || 'transparent'
+          //   }); // prevent IE from throwing exception if hex is empty
+        },
+        function(color, context)
+        {
+
+        }
+  );
     return tools;
   };
 
@@ -318,6 +434,7 @@ $(function() {
   $(".content").bind("mousemove", function(e) {
     rsMouse.tmpPos = mouseMove(e);
   });
+
 });
 
 
@@ -350,7 +467,6 @@ $(function() {
       'end': endPosition
     };
   }
-
   //@todo 获取textarea中，选中的文本
   function getSelected() {
     var position = getPositions();
