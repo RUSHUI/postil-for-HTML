@@ -150,3 +150,22 @@ table.jPicker{
 .tools li:nth-child(4n) {
     border-right: none;
 }
+
+
+.mask-msg .message.dialog{
+  max-width: 500px;
+  width: auto;
+  min-width: 200px;
+}
+.mask-msg .message.dialog .text{
+  line-height: 25px;
+    margin: 5px;
+    text-align: left;
+    font-size: 16px;
+    word-wrap: break-word;
+    border-bottom: 1px solid #eef;
+}
+
+.dialog .btn{
+  width:50%!important;
+}

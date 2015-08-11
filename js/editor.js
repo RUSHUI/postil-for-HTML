@@ -318,20 +318,23 @@ console.log("blur");
         			range.insertNode(textNode);
         			var content = $(".content").html();
         			var reg = /\[ins id='(\d*)' comment='([\w\W]*)']([\w\W]*)\[\/ins]/gi;
-        			console.log(reg.exec(content));
+        			reg.exec(content);
         			var id = RegExp.$1,
         			comment = RegExp.$2,
         			c = RegExp.$3;
-              console.log(id,comment);
         			var reHtml = "<ins id='"+id+"' comment='"+comment+"' class='postil' >"+c+"<svg class='icons minipostil icon-bubble2'><use xlink:href='#icon-bubble2'></use></svg></ins>";
         			content = content.replace(reg, reHtml);
         			$(".content").html(content);
               $(".content .minipostil").each(function(){
+                $(this).bind("keydown,keyup",function(){
+                  e.preventDefault();
+                 e.stopPropagation();
+                });
                 $(this).click(function(e){
                   e.preventDefault();
                  e.stopPropagation();
-                   $.confirm($(this.parentNode).attr("comment"),function(){
-
+                   $.dialog({text:$(this.parentNode).attr("comment"),ok:"删除备注",cancel:"关闭"},function(){
+                      $("ins#"+id).replaceWith(selected);
                    });
 
                 });
